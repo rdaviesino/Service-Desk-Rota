@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Office Rota</title>
+<style>
+  :root{
+    --navy: #16233F;
+    --purple: #5B3E96;
+    --green: #4EA72E;
+    --green-pale: #D9F2D0;
+    --paper: #F7F5F0;
+    --line: #DCD6C9;
+    --ink-soft: #5B5F6B;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--paper);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--navy);
+    padding: 28px 18px 60px;
+  }
+  .wrap{ max-width: 880px; margin: 0 auto; }
+
+  header{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+    border-bottom: 2px solid var(--navy);
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+  }
+  h1{
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 30px;
+    margin: 0;
+    letter-spacing: 0.2px;
+  }
+  .sub{
+    font-size: 12.5px;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .whoami{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size: 13px;
+  }
+  .whoami select{
+    font-size: 13px;
+    padding: 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: white;
+    color: var(--navy);
+  }
+
+  .weeknav{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .weeknav button{
+    border: 1px solid var(--navy);
+    background: white;
+    color: var(--navy);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .weeknav button:hover{ background: var(--navy); color: white; }
+  .weeknav .label{
+    font-weight: 700;
+    font-size: 15px;
+    min-width: 210px;
+    text-align: center;
+  }
+  .weeknav .today{
+    border-radius: 6px;
+    width: auto;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  thead th{
+    background: var(--navy);
+    color: white;
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 10px 6px;
+    text-align: center;
+  }
+  thead th.namecol{ text-align: left; padding-left: 16px; }
+  thead .datesmall{
+    display:block;
+    font-weight: 400;
+    text-transform: none;
+    font-size: 11px;
+    opacity: 0.75;
+    letter-spacing: 0;
+  }
+  tbody td{
+    border-top: 1px solid var(--line);
+    padding: 10px 6px;
+    text-align: center;
+  }
+  tbody tr:nth-child(even){ background: #FBFAF7; }
+  td.namecol{
+    text-align:left;
+    padding-left: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  td.namecol .you-tag{
+    font-size: 10px;
+    color: var(--purple);
+    font-weight: 700;
+    margin-left: 6px;
+  }
+  .remove-btn{
+    background:none; border:none; color: var(--ink-soft);
+    cursor:pointer; font-size: 13px; margin-left: 8px;
+    visibility: hidden;
+  }
+  tr:hover .remove-btn{ visibility: visible; }
+
+  .cell{
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid var(--line);
+    background: white;
+    cursor: pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 15px;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .cell.in{
+    background: var(--green-pale);
+    border-color: var(--green);
+    color: var(--green);
+    font-weight: 700;
+  }
+  .cell:hover{ border-color: var(--purple); }
+
+  .addrow{
+    display:flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .addrow input{
+    flex:1;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 13.5px;
+  }
+  .addrow button{
+    background: var(--purple);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .addrow button:hover{ opacity: 0.9; }
+
+  .occupancy{ margin-top: 30px; }
+  .occupancy h2{
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+  .occ-row{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .occ-day{ width: 44px; font-size: 12.5px; font-weight: 700; color: var(--navy); }
+  .occ-bar-track{
+    flex:1;
+    height: 14px;
+    background: #EFEBE1;
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .occ-bar-fill{
+    height: 100%;
+    background: var(--green);
+    border-radius: 7px;
+    transition: width 0.25s ease, background 0.15s ease;
+  }
+  .occ-bar-fill.over{ background: #C0392B; }
+  .occ-count{ width: 46px; font-size: 12px; color: var(--ink-soft); text-align: right; }
+  .occ-count.over{ color: #C0392B; font-weight: 700; }
+
+  .status{ text-align:center; color: var(--ink-soft); font-size: 13px; padding: 40px 0; }
+  .status.error{ color: #C0392B; }
+  .footnote{ text-align:center; font-size: 11.5px; color: var(--ink-soft); margin-top: 26px; }
+  .reset-link{
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    background:none;
+    border:none;
+    font-size: 11.5px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="status">Loading rota…</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+// ======================================================================
+// PASTE YOUR FIREBASE CONFIG HERE (see the setup guide for how to get it)
+// ======================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCbOZT16lRWF3NoXsyTa1dTzxoMiMhrXLo",
+  authDomain: "innovate-office-rota.firebaseapp.com",
+  projectId: "innovate-office-rota",
+  storageBucket: "innovate-office-rota.firebasestorage.app",
+  messagingSenderId: "521143960830",
+  appId: "1:521143960830:web:2cecc2c41c67cab424d1af"
+};
+// ======================================================================
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
+const DESK_CAPACITY = 5;
+const DEFAULT_MEMBERS = ["Jonathan Crane","Luke Whalley","Tom Bartlett","Joseph Daniels","Rikki Ball","Rebecca Davies"];
+
+function getMonday(d){
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = (day === 0 ? -6 : 1) - day;
+  date.setDate(date.getDate() + diff);
+  date.setHours(0,0,0,0);
+  return date;
+}
+function fmtISO(d){ return d.toISOString().slice(0,10); }
+function fmtWeekLabel(monday){
+  const end = new Date(monday);
+  end.setDate(end.getDate()+4);
+  const opts = { day:'numeric', month:'short' };
+  return monday.toLocaleDateString('en-GB', opts) + ' – ' + end.toLocaleDateString('en-GB', opts) + ', ' + end.getFullYear();
+}
+function dayDateLabel(monday, idx){
+  const d = new Date(monday);
+  d.setDate(d.getDate()+idx);
+  return d.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+}
+
+let state = {
+  currentUser: null,
+  members: [],
+  weekStart: getMonday(new Date()),
+  rota: {}
+};
+
+async function fbGet(path){
+  try{
+    const snap = await getDoc(doc(db, "rota", path));
+    return snap.exists() ? snap.data() : null;
+  }catch(e){
+    console.error('Firestore get failed', e);
+    showError();
+    return null;
+  }
+}
+async function fbSet(path, data){
+  try{
+    await setDoc(doc(db, "rota", path), data);
+    return true;
+  }catch(e){
+    console.error('Firestore set failed', e);
+    showError();
+    return false;
+  }
+}
+
+function showError(){
+  const app = document.getElementById('app');
+  app.innerHTML = `<div class="status error">
+    Couldn't connect to the shared database.<br>
+    Check that the Firebase config at the top of this file is filled in correctly,
+    and that Firestore rules allow read/write access.
+  </div>`;
+}
+
+async function loadAll(){
+  const membersDoc = await fbGet('members');
+  if(membersDoc && membersDoc.list){
+    state.members = membersDoc.list;
+  } else {
+    state.members = DEFAULT_MEMBERS;
+    await fbSet('members', { list: state.members });
+  }
+
+  state.currentUser = localStorage.getItem('rota-current-user') || null;
+
+  await loadWeek();
+  render();
+}
+
+async function loadWeek(){
+  const key = 'week-' + fmtISO(state.weekStart);
+  const data = await fbGet(key);
+  state.rota = (data && data.rota) ? data.rota : {};
+}
+
+async function saveWeek(){
+  const key = 'week-' + fmtISO(state.weekStart);
+  await fbSet(key, { rota: state.rota });
+}
+
+async function toggleCell(name, dayIdx){
+  const day = DAYS[dayIdx];
+  if(!state.rota[name]) state.rota[name] = {};
+  state.rota[name][day] = !state.rota[name][day];
+  render();
+  await saveWeek();
+}
+
+async function addMember(name){
+  name = name.trim();
+  if(!name || state.members.includes(name)) return;
+  state.members.push(name);
+  await fbSet('members', { list: state.members });
+  render();
+}
+
+async function removeMember(name){
+  state.members = state.members.filter(m => m !== name);
+  delete state.rota[name];
+  await fbSet('members', { list: state.members });
+  await saveWeek();
+  if(state.currentUser === name){
+    state.currentUser = null;
+    localStorage.removeItem('rota-current-user');
+  }
+  render();
+}
+
+function setCurrentUser(name){
+  state.currentUser = name || null;
+  if(name){ localStorage.setItem('rota-current-user', name); }
+  else{ localStorage.removeItem('rota-current-user'); }
+  render();
+}
+
+async function changeWeek(delta){
+  const d = new Date(state.weekStart);
+  d.setDate(d.getDate() + delta*7);
+  state.weekStart = getMonday(d);
+  await loadWeek();
+  render();
+}
+
+async function goToday(){
+  state.weekStart = getMonday(new Date());
+  await loadWeek();
+  render();
+}
+
+function occupancyCounts(){
+  return DAYS.map(day => {
+    let count = 0;
+    state.members.forEach(m => { if(state.rota[m] && state.rota[m][day]) count++; });
+    return count;
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function render(){
+  const app = document.getElementById('app');
+  const monday = state.weekStart;
+  const counts = occupancyCounts();
+
+  let memberOptions = '<option value="">— select your name —</option>' +
+    state.members.map(m => `<option value="${escapeHtml(m)}" ${state.currentUser===m?'selected':''}>${escapeHtml(m)}</option>`).join('');
+
+  let rows = state.members.map(name => {
+    const cells = DAYS.map((day, idx) => {
+      const isIn = !!(state.rota[name] && state.rota[name][day]);
+      return `<td><div class="cell ${isIn?'in':''}" data-name="${escapeHtml(name)}" data-day="${idx}" title="${isIn ? 'In office' : 'Not in'}">${isIn ? '✓' : ''}</div></td>`;
+    }).join('');
+    const you = state.currentUser === name ? '<span class="you-tag">YOU</span>' : '';
+    return `<tr>
+      <td class="namecol">${escapeHtml(name)}${you}<button class="remove-btn" data-remove="${escapeHtml(name)}" title="Remove teammate">✕</button></td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  let occRows = DAYS.map((day, idx) => {
+    const count = counts[idx];
+    const over = count > DESK_CAPACITY;
+    const pct = Math.min(Math.round((count/DESK_CAPACITY)*100), 100);
+    return `<div class="occ-row">
+      <div class="occ-day">${day}</div>
+      <div class="occ-bar-track"><div class="occ-bar-fill ${over?'over':''}" style="width:${pct}%"></div></div>
+      <div class="occ-count ${over?'over':''}">${count}/${DESK_CAPACITY}</div>
+    </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <header>
+      <div>
+        <h1>Office Rota</h1>
+        <div class="sub">Service Desk — weekly sign-up</div>
+      </div>
+      <div class="whoami">
+        <label for="who">You are:</label>
+        <select id="who">${memberOptions}</select>
+      </div>
+    </header>
+
+    <div class="weeknav">
+      <button id="prevWeek">‹</button>
+      <div class="label">${fmtWeekLabel(monday)}</div>
+      <button id="nextWeek">›</button>
+      <button class="today" id="todayBtn">Today</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="namecol">Team</th>
+          ${DAYS.map((d,idx)=>`<th>${d}<span class="datesmall">${dayDateLabel(monday, idx)}</span></th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${rows || '<tr><td colspan="6" style="padding:20px; text-align:center; color:#5B5F6B;">No teammates yet — add one below.</td></tr>'}
+      </tbody>
+    </table>
+
+    <div class="addrow">
+      <input id="newMember" type="text" placeholder="Add a teammate's name…" />
+      <button id="addBtn">Add</button>
+    </div>
+
+    <div class="occupancy">
+      <h2>Desk occupancy this week (${DESK_CAPACITY} desks)</h2>
+      ${occRows}
+    </div>
+
+    <div class="footnote">
+      Shared with your team — everyone using this link sees the same sign-ups.
+      <br><button class="reset-link" id="resetBtn">Clear this week</button>
+    </div>
+  `;
+
+  document.getElementById('who').addEventListener('change', e => setCurrentUser(e.target.value));
+  document.getElementById('prevWeek').addEventListener('click', () => changeWeek(-1));
+  document.getElementById('nextWeek').addEventListener('click', () => changeWeek(1));
+  document.getElementById('todayBtn').addEventListener('click', goToday);
+  document.getElementById('addBtn').addEventListener('click', () => {
+    const input = document.getElementById('newMember');
+    addMember(input.value);
+    input.value = '';
+  });
+  document.getElementById('newMember').addEventListener('keydown', e => {
+    if(e.key === 'Enter'){
+      addMember(e.target.value);
+      e.target.value = '';
+    }
+  });
+  document.getElementById('resetBtn').addEventListener('click', async () => {
+    if(confirm('Clear all sign-ups for this week?')){
+      state.rota = {};
+      await saveWeek();
+      render();
+    }
+  });
+  app.querySelectorAll('.cell').forEach(el => {
+    el.addEventListener('click', () => toggleCell(el.dataset.name, parseInt(el.dataset.day)));
+  });
+  app.querySelectorAll('[data-remove]').forEach(el => {
+    el.addEventListener('click', () => {
+      if(confirm(`Remove ${el.dataset.remove} from the rota?`)) removeMember(el.dataset.remove);
+    });
+  });
+}
+
+loadAll();
+</script>
+</body>
+</html>
