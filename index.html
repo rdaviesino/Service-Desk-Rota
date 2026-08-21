@@ -165,6 +165,17 @@
     font-weight: 700;
   }
   .cell:hover{ border-color: var(--purple); }
+  .cell.holiday{
+    background: #E8E6E0;
+    border-color: #E8E6E0;
+    cursor: not-allowed;
+    color: #A7A297;
+  }
+  .cell.holiday:hover{ border-color: #E8E6E0; }
+  th.holiday-col{ background: #35405a; }
+  .datesmall.holiday-label{
+    color: #ffd9a0;
+  }
 
   .addrow{
     display:flex;
@@ -264,6 +275,29 @@ const db = getFirestore(app);
 
 const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
 const DESK_CAPACITY = 5;
+
+// UK (England & Wales) bank holidays — add future years here as needed
+const BANK_HOLIDAYS = {
+  "2025-08-25": "Summer Bank Holiday",
+  "2025-12-25": "Christmas Day",
+  "2025-12-26": "Boxing Day",
+  "2026-01-01": "New Year's Day",
+  "2026-04-03": "Good Friday",
+  "2026-04-06": "Easter Monday",
+  "2026-05-04": "Early May Bank Holiday",
+  "2026-05-25": "Spring Bank Holiday",
+  "2026-08-31": "Summer Bank Holiday",
+  "2026-12-25": "Christmas Day",
+  "2026-12-28": "Boxing Day (substitute)",
+  "2027-01-01": "New Year's Day",
+  "2027-03-26": "Good Friday",
+  "2027-03-29": "Easter Monday",
+  "2027-05-03": "Early May Bank Holiday",
+  "2027-05-31": "Spring Bank Holiday",
+  "2027-08-30": "Summer Bank Holiday",
+  "2027-12-27": "Christmas Day (substitute)",
+  "2027-12-28": "Boxing Day (substitute)"
+};
 const DEFAULT_MEMBERS = ["Jonathan Crane","Luke Whalley","Tom Bartlett","Joseph Daniels","Rikki Ball","Rebecca Davies"];
 
 function getMonday(d){
@@ -285,6 +319,14 @@ function dayDateLabel(monday, idx){
   const d = new Date(monday);
   d.setDate(d.getDate()+idx);
   return d.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+}
+function dayISO(monday, idx){
+  const d = new Date(monday);
+  d.setDate(d.getDate()+idx);
+  return fmtISO(d);
+}
+function holidayName(monday, idx){
+  return BANK_HOLIDAYS[dayISO(monday, idx)] || null;
 }
 
 let state = {
@@ -422,6 +464,10 @@ function render(){
   let rows = state.members.map(name => {
     const cells = DAYS.map((day, idx) => {
       const isIn = !!(state.rota[name] && state.rota[name][day]);
+      const hol = holidayName(monday, idx);
+      if(hol){
+        return `<td><div class="cell holiday" title="${escapeHtml(hol)} — office closed">—</div></td>`;
+      }
       return `<td><div class="cell ${isIn?'in':''}" data-name="${escapeHtml(name)}" data-day="${idx}" title="${isIn ? 'In office' : 'Not in'}">${isIn ? '✓' : ''}</div></td>`;
     }).join('');
     const you = state.currentUser === name ? '<span class="you-tag">YOU</span>' : '';
@@ -465,7 +511,10 @@ function render(){
       <thead>
         <tr>
           <th class="namecol">Team</th>
-          ${DAYS.map((d,idx)=>`<th>${d}<span class="datesmall">${dayDateLabel(monday, idx)}</span></th>`).join('')}
+          ${DAYS.map((d,idx)=>{
+            const hol = holidayName(monday, idx);
+            return `<th class="${hol?'holiday-col':''}">${d}<span class="datesmall ${hol?'holiday-label':''}">${hol ? hol : dayDateLabel(monday, idx)}</span></th>`;
+          }).join('')}
         </tr>
       </thead>
       <tbody>
