@@ -485,7 +485,6 @@ function render(){
 
     <div class="footnote">
       Shared with your team — everyone using this link sees the same sign-ups.
-      <br><button class="reset-link" id="resetBtn">Clear this week</button>
     </div>
   `;
 
@@ -502,13 +501,6 @@ function render(){
     if(e.key === 'Enter'){
       addMember(e.target.value);
       e.target.value = '';
-    }
-  });
-  document.getElementById('resetBtn').addEventListener('click', async () => {
-    if(confirm('Clear all sign-ups for this week?')){
-      state.rota = {};
-      await saveWeek();
-      render();
     }
   });
   app.querySelectorAll('.cell').forEach(el => {
